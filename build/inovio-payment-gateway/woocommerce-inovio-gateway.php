@@ -10,26 +10,10 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wporg
  * Domain Path: /languages
- * Requires at least: 6.0
- * Tested up to: 6.4
- * Requires PHP: 7.4
- * WC requires at least: 7.0
- * WC tested up to: 10.3
  */
 if ( !defined( 'ABSPATH' ) ) { // To check absolute path
     exit;
 }
-
-// Declare HPOS compatibility
-add_action( 'before_woocommerce_init', function() {
-    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
-            'custom_order_tables',
-            __FILE__,
-            true
-        );
-    }
-} );
 
 // Use to load Woocommerce_Inovio_init after plugin load
 add_action( 'plugins_loaded', 'Woocommerce_Inovio_init',11 );
@@ -132,14 +116,12 @@ function Woocommerce_Inovio_init() {
      * @param  int $order_id
      */
     function custom_checkout_field_update_order_meta( $order_id ) {
-        $order = wc_get_order( $order_id );
         if ( ! empty( sanitize_text_field( $_POST['my_field_name'] ) ) ) {
-            $order->update_meta_data( 'my_field_name', sanitize_text_field( $_POST['my_field_name'] ) );
+            update_post_meta( $order_id, 'my_field_name', sanitize_text_field( $_POST['my_field_name'] ) );
         }
         if ( ! empty( sanitize_text_field( $_POST['my_field_term'] ) ) ) {
-            $order->update_meta_data( 'my_field_term', sanitize_text_field( $_POST['my_field_term'] ) );
+            update_post_meta( $order_id, 'my_field_term', sanitize_text_field( $_POST['my_field_term'] ) );
         }
-        $order->save();
     }
 
 // Hook to display the custom field result on the order edit page (backend) when checkbox has been checked
@@ -150,8 +132,8 @@ function Woocommerce_Inovio_init() {
      * @param  array $order
      */
     function display_custom_field_on_order_edit_pages( $order ) {
-        $my_field_name = $order->get_meta( 'my_field_name' );
-        $my_field_term = $order->get_meta( 'my_field_term' );
+        $my_field_name = get_post_meta( $order->get_id(), 'my_field_name', true );
+        $my_field_term = get_post_meta( $order->get_id(), 'my_field_term', true );
         if( 1 == $my_field_name ) {
             echo '<p><strong>Product verification: </strong> <span style="color:red;">enabled</span></p>';
         }

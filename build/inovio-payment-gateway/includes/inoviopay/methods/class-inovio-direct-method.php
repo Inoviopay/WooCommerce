@@ -54,9 +54,12 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->common_class = new class_common_inovio_payment();
         add_action( 'wp_enqueue_scripts', array( $this, 'inovio_payment_script' ) );
 
-        // Register settings save hook
-        add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array ( &$this, 'process_admin_options' ) );
-
+        // Check WooCommerce version
+        if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '>=' ) ) {
+            add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array ( &$this, 'process_admin_options' ) );
+        } else {
+            add_action( 'woocommerce_update_options_payment_gateways', array ( &$this, 'process_admin_options' ) );
+        }
         $this->_maybe_register_callback_in_subscriptions(); 
     }
 
@@ -96,13 +99,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
     public function scheduled_subscription_payment( $amount, $order ) {
         if( ! defined( 'SSPI_DONE' ) || TRUE !== SSPI_DONE ){
+        $old_wc               = version_compare( WC_VERSION, '3.0', '<' );
         $order                = wc_get_order( $order );
-        $order_id             = $order->get_id();
+        $order_id             = $old_wc ? $order->id : $order->get_id();
         $order_param = $this->common_class->get_order_params_subscription($order_id);
         $params = array_merge( $this->common_class->merchant_credential( $this ), $order_param, 
                         $this->common_class->get_product_ids( $order, $this )
         );
-        $order->update_meta_data( '_inovio_gateway_scheduled_request', json_encode( $params ) );
+        update_post_meta( $order->get_id(), '_inovio_gateway_scheduled_request', json_encode( $params ) );
         // Advance Params
         $final_params = $params + $this->common_class->get_advaceparam( $this );
         
@@ -113,8 +117,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $response = $processor->set_methodname( 'auth_and_capture' )->get_response();
         $parse_result = json_decode( $response );
     
-        $order->update_meta_data( '_inovio_gateway_scheduled_response', json_encode($parse_result) );
-        $order->save();
+        update_post_meta( $order->get_id(), '_inovio_gateway_scheduled_response', json_encode($parse_result) );
         define( 'SSPI_DONE', TRUE );
         if (
             isset( $parse_result->TRANS_STATUS_NAME ) &&
@@ -124,8 +127,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         ) {
             // Add order note
             $order->add_order_note( ' Billing Direct API Payment completed and Transaction Id:' . $parse_result->PO_ID );
-            $order->add_meta_data( '_inoviotransaction_id', $parse_result->PO_ID, true );
-            $order->save();
+            add_post_meta( $order->id, '_inoviotransaction_id', $parse_result->PO_ID, true );
             // Payment complete add PO_ID as transaction id in post_meta table
             $order->payment_complete( $parse_result->PO_ID );
         
@@ -139,9 +141,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             // Add note
             if( isset( $parse_result->PO_ID ) ) {
                 $order->add_order_note(sprintf( __( 'TransactionID %s', 'wc_iveri'), $parse_result->PO_ID ) );
-
-                    $order->add_meta_data( '_inoviotransaction_id', $parse_result->PO_ID, true );
-                    $order->save();
+                
+                    add_post_meta($order_id, '_inoviotransaction_id', $parse_result->PO_ID, true);
                     // Payment failed
             $order->update_status('failed', sprintf(__('Card payment failed. Payment was rejected due to an error%s', $this->id)));
             }
@@ -185,9 +186,9 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             $amount = $order->get_total() - $this->inovio_get_total_refunded( $order_id );
         }
         // Transaction_id will be only found in case of inovio payment method
-        $transaction_id = $order->get_meta( '_inoviotransaction_id' );
+        $transaction_id = get_post_meta( $order_id, '_inoviotransaction_id', true );
 
-        if ( $order->get_payment_method() != 'inoviodirectmethod' || empty( $transaction_id ) ) {
+        if ( get_post_meta( $order_id, '_payment_method', true ) != 'inoviodirectmethod' || empty( $transaction_id ) ) {
             return;
         }
         // Merge params
@@ -321,15 +322,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 // Set method auth and capture
                 $response = $processor->set_methodname( 'auth_and_capture' )->get_response();
                 $parse_result = json_decode( $response );
-                $order->update_meta_data( '_inovio_gateway_scheduled_first_request', json_encode( $params ) );
-                $order->update_meta_data( 'uniqid', $uniqid );
-                $order->update_meta_data( 'CUST_ID', $parse_result->CUST_ID );
-                $order->update_meta_data( 'PMT_L4', $parse_result->PMT_L4 );
-                $order->update_meta_data( 'REQ_ID', $parse_result->REQ_ID );
-                $order->update_meta_data( 'TRANS_STATUS_NAME', $parse_result->TRANS_STATUS_NAME );
-                $order->update_meta_data( 'TRANS_ID', $parse_result->TRANS_ID );
-                $order->update_meta_data( '_inovio_gateway_scheduled_first_response', json_encode( $parse_result ) );
-                $order->save();
+                update_post_meta( $order->get_id(), '_inovio_gateway_scheduled_first_request', json_encode( $params ) );
+                update_post_meta( $order->id, 'uniqid', $uniqid );
+                update_post_meta( $order->id, 'CUST_ID', $parse_result->CUST_ID );
+                update_post_meta( $order->id, 'PMT_L4', $parse_result->PMT_L4 );
+                update_post_meta( $order->id, 'REQ_ID', $parse_result->REQ_ID );
+                update_post_meta( $order->id, 'TRANS_STATUS_NAME', $parse_result->TRANS_STATUS_NAME );
+                update_post_meta( $order->id, 'TRANS_ID', $parse_result->TRANS_ID );
+                update_post_meta( $order->get_id(), '_inovio_gateway_scheduled_first_response', json_encode( $parse_result ) );
                 
                 // check card length
                 if ( isset( $parse_result->REF_FIELD ) && 'pmt_numb' == strtolower( $parse_result->REF_FIELD ) ) {
@@ -351,12 +351,12 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
                     // Add order note
                     $order->add_order_note( ' Billing Direct API Payment completed and Transaction Id:' . $parse_result->PO_ID );
-                    $order->add_meta_data( '_inoviotransaction_id', $parse_result->PO_ID, true );
+                    add_post_meta( $order->id, '_inoviotransaction_id', $parse_result->PO_ID, true );
                     // Payment complete add PO_ID as transaction id in post_meta table
                     $order->payment_complete( $parse_result->PO_ID );
 
-                    // Reduce stock - handled automatically by payment_complete() in modern WC
-                    wc_reduce_stock_levels( $order_id );
+                    // Reduce stock
+                    $order->reduce_order_stock();
 
                     // Add notice thank you page
                     wc_add_notice( $thankyou_msg, 'success' );
@@ -379,8 +379,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
                     // Add note
                     $order->add_order_note(sprintf( __( 'TransactionID %s', 'wc_iveri'), $parse_result->PO_ID ) );
-                    $order->add_meta_data( '_inoviotransaction_id', $parse_result->PO_ID, true );
-                    $order->save();
+                    add_post_meta( $order_id, '_inoviotransaction_id', $parse_result->PO_ID, true );
 
                     // Payment failed
                     $order->update_status( 'failed', sprintf( __( 'Card payment failed. Payment was rejected due to an error%s', $this->id ) ) );

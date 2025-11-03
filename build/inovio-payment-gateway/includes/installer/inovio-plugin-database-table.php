@@ -5,14 +5,12 @@
  */
 function create_inovio_plugin_database_table() {
 	global $wpdb;
-	$charset_collate = $wpdb->get_charset_collate();
 		$sql = "CREATE TABLE {$wpdb->prefix}inovio_refunded (
                   id bigint(20) NOT NULL AUTO_INCREMENT,
                   inovio_order_id bigint(20) NOT NULL,
                   inovio_refunded_amount varchar(256),
-                  PRIMARY KEY  (id),
-                  KEY inovio_order_id (inovio_order_id)
-                ) ENGINE=InnoDB $charset_collate;";
+                  PRIMARY KEY  (id)
+                ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
 
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
@@ -23,14 +21,12 @@ function create_inovio_plugin_database_table() {
  */
 function create_ach_inovio_plugin_database_table() {
 	global $wpdb;
-	$charset_collate = $wpdb->get_charset_collate();
 		$sql = "CREATE TABLE {$wpdb->prefix}ach_inovio_refunded (
                   id bigint(20) NOT NULL AUTO_INCREMENT,
                   ach_inovio_order_id bigint(20) NOT NULL,
                   ach_inovio_refunded_amount varchar(256),
-                  PRIMARY KEY  (id),
-                  KEY ach_inovio_order_id (ach_inovio_order_id)
-                ) ENGINE=InnoDB $charset_collate;";
+                  PRIMARY KEY  (id)
+                ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
 
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
