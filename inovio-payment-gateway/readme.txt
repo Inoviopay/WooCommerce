@@ -13,7 +13,7 @@ Domain Path: /languages
 Requires at least: 5.0
 Tested up to: 5.5
 Requires PHP: 5.2.4
-Stable tag: trunk
+Stable tag: 5.1.0
 
 == Description ==
 The future of online selling is here. Inovio is a fully-integrated, global payments platform for ecommerce merchant. Reliable and secure, our innovative payment processing platform offers a seamless merchant experience for credit card transactions, US ACH, US and EU direct debit, worldwide SMS, and electronic cash payments. Based on anything from issuer to currency, our intelligent transaction routing maximizes approvals and reduces downgraded transactions and surcharges. Get instant update notifications from every major network for up-to-date cardholder information.
