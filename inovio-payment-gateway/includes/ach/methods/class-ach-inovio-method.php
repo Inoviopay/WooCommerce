@@ -364,7 +364,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
  * @return array $method
  */
 function add_ach_inovio_class( $method ) {
-    $method[] = 'Ach_Inovio_Method';
+    $method[] = 'Woocommerce_Ach_Inovio_Gateway';
 
     return $method;
 }

@@ -227,3 +227,55 @@ inovio-payment-gateway/
     └── pdf/
         └── TOS_ENG.pdf                      # Terms of Service document
 ```
+
+## CRITICAL: Build Directory Management
+
+### ⚠️ DO NOT Edit These Directories:
+- `build/` - Automatically generated during release process
+- `dist/` - Distribution ZIP files and checksums
+
+### ✅ ALWAYS Edit Source Files:
+- `inovio-payment-gateway/` - Main plugin source code
+
+### Why This Matters
+
+The `package.sh` script **always rebuilds** `build/` from source:
+1. Deletes entire `build/` directory
+2. Copies fresh from `inovio-payment-gateway/` source
+3. Removes development files
+4. Creates distribution ZIP
+
+**Any changes made to `build/` directory will be lost on next release.**
+
+### Build Process Flow
+
+```
+inovio-payment-gateway/          ← EDIT HERE (source code)
+         ↓
+    [git commit]
+         ↓
+    [./package.sh runs]
+         ↓
+build/inovio-payment-gateway/    ← DON'T EDIT (temporary)
+         ↓
+    [zip created]
+         ↓
+dist/inovio-payment-gateway-X.Y.Z.zip
+```
+
+### If You Edited the Wrong Directory
+
+If you accidentally edited `build/` instead of source:
+1. **Don't commit the build/ changes**
+2. Apply the same changes to `inovio-payment-gateway/` source
+3. Discard build/ changes: `git restore build/`
+4. The next `package.sh` run will rebuild from correct source
+
+### File Locations Reference
+
+| Feature | Source Location | Build Location (auto-generated) |
+|---------|----------------|--------------------------------|
+| Credit Card Gateway | `inovio-payment-gateway/includes/inoviopay/` | `build/inovio-payment-gateway/includes/inoviopay/` |
+| ACH Gateway | `inovio-payment-gateway/includes/ach/` | `build/inovio-payment-gateway/includes/ach/` |
+| Common Classes | `inovio-payment-gateway/includes/common/` | `build/inovio-payment-gateway/includes/common/` |
+| Main Plugin File | `inovio-payment-gateway/woocommerce-inovio-gateway.php` | `build/inovio-payment-gateway/woocommerce-inovio-gateway.php` |

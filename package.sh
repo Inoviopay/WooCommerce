@@ -682,13 +682,10 @@ echo -e "${YELLOW}Assets available at:${NC}"
 echo -e "  ${BLUE}${RELEASE_URL:-https://github.com/[org]/[repo]/releases/tag/v${VERSION}}${NC}"
 echo ""
 
-# Optional: Clean build directory
-read -p "Clean build directory? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    rm -rf $BUILD_DIR
-    echo -e "${GREEN}✓ Build directory cleaned${NC}"
-fi
+# Auto-clean build directory after successful release
+echo -e "${YELLOW}Cleaning build directory...${NC}"
+rm -rf $BUILD_DIR
+echo -e "${GREEN}✓ Build directory cleaned${NC}"
 
 echo ""
 echo -e "${GREEN}Done!${NC}"

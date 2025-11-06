@@ -12,5 +12,3 @@ class Woocommerce_Ach_Inovio_Gateway extends Ach_Inovio_Method {
     }
 
 }
-
-new Woocommerce_Ach_Inovio_Gateway();

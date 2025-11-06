@@ -24,11 +24,11 @@ class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
      */
     public function __construct() {
         // add js in Inovio gateway
-        add_action( 'init', array( $this, 'inovio_direct_payment_script' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'inovio_direct_payment_script' ) );
         // add css in Inovio gateway
-        add_action( 'init', array( $this, 'inovio_direct_payment_style' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'inovio_direct_payment_style' ) );
         parent::__construct();
-       
+
         add_action( 'init', array( $this, 'inovio_session' ) );
     }
 
@@ -69,5 +69,3 @@ class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
     }
 
 }
-
-new Woocommerce_Inovio_Gateway();
