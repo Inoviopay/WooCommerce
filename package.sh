@@ -549,41 +549,41 @@ generate_changelog_from_commits() {
 
     # Get commits between previous tag and HEAD as string
     local commits_str=""
-    local temp_file="/tmp/git_log_$$.txt"
-    git log --pretty=format:"%h|||%s|||%b|||COMMIT_END" "${previous_tag}..HEAD" 2>/dev/null > "$temp_file"
 
-    # Process commits from temp file
-    while IFS= read -r commit_block; do
-        # Parse: hash|||subject|||body|||COMMIT_END
-        local hash=$(echo "$commit_block" | cut -d'|||' -f1)
-        local subject=$(echo "$commit_block" | cut -d'|||' -f2)
-        local body=$(echo "$commit_block" | cut -d'|||' -f3)
+    # Use null-terminated format for reliable parsing with multiline messages
+    while IFS= read -r -d '' commit_data; do
+        # Split on first two newlines to separate hash, subject, and body
+        local hash=$(echo "$commit_data" | head -1)
+        local subject=$(echo "$commit_data" | sed -n '2p')
+        local body=$(echo "$commit_data" | tail -n +3)
 
-        # Skip empty lines
+        # Skip empty commits
         [ -z "$hash" ] && continue
+        [ -z "$subject" ] && continue
 
         # Skip version bump commits
-        if echo "$subject" | grep -Eqi "^(bump|release|version).*version"; then
+        if echo "$subject" | grep -Eqi "^(bump|release|version|update changelog)"; then
             continue
         fi
 
-        # Skip merge commits (optional)
+        # Skip merge commits
         if echo "$subject" | grep -Eqi "^merge"; then
             continue
         fi
 
-        # Extract issue reference from body
-        local issue_ref=$(echo "$body" | grep -Eo "(Resolves|Fixes|Closes) #([0-9]+)" | grep -Eo "[0-9]+" | head -1)
+        # Extract issue reference from subject or body
+        local issue_ref=$(echo "$subject $body" | grep -Eo "(Resolves|Fixes|Closes) #([0-9]+)" | grep -Eo "[0-9]+" | head -1)
+
+        # Collapse body to single line for storage (replace newlines with spaces)
+        local body_collapsed=$(echo "$body" | tr '\n' ' ' | sed 's/  */ /g')
 
         # Append to commits string: hash|subject|body|issue_ref
         if [ -n "$commits_str" ]; then
-            commits_str="${commits_str}"$'\n'"${hash}|${subject}|${body}|${issue_ref}"
+            commits_str="${commits_str}"$'\n'"${hash}|${subject}|${body_collapsed}|${issue_ref}"
         else
-            commits_str="${hash}|${subject}|${body}|${issue_ref}"
+            commits_str="${hash}|${subject}|${body_collapsed}|${issue_ref}"
         fi
-    done < <(tr '\n' ' ' < "$temp_file" | sed 's/|||COMMIT_END/\n/g')
-
-    rm -f "$temp_file"
+    done < <(git log --format="%H%n%s%n%b" --no-merges -z "${previous_tag}..HEAD" 2>/dev/null)
 
     # Check if there are any commits
     if [ -z "$commits_str" ]; then
