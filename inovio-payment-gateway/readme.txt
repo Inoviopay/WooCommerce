@@ -51,6 +51,8 @@ Get answers on pricing, feature implementation, API integration, and more... at 
 
 No changes in this release.
 
+No changes in this release.
+
 = 5.1.0 - 2025-01-03 =
 * Major Update: Full WooCommerce 10.x and HPOS (High-Performance Order Storage) compatibility
 * Fixed: Replaced deprecated $order->id with $order->get_id() for HPOS compatibility
