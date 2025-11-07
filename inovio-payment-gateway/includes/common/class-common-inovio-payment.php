@@ -87,8 +87,8 @@ class class_common_inovio_payment {
     public function merchant_credential( $options ) {
         // Get settings directly from database to ensure they're always available
         // This is more reliable than using instance properties which may not be initialized
-        // Use the actual database key names (api_endpoint, user_id, password) not the property names
-        $api_endpoint = $options->get_option( 'api_endpoint' );
+        // Use the actual database key names (apiEndPoint, user_id, password) - must match form field names
+        $api_endpoint = $options->get_option( 'apiEndPoint' );
         $site_id = $options->get_option( 'site_id' );
         $req_username = $options->get_option( 'user_id' );
         $req_password = $options->get_option( 'password' );
