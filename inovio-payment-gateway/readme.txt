@@ -49,6 +49,9 @@ Get answers on pricing, feature implementation, API integration, and more... at 
 
 == Changelog ==
 
+= 5.24.0 - 2025-11-10 =
+* Other: Remove AJAX routing number validation from ACH payment flow
+
 = 5.21.0 - 2025-11-10 =
 * Fixed: Fix username and password setting key mismatches
 
