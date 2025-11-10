@@ -49,6 +49,9 @@ Get answers on pricing, feature implementation, API integration, and more... at 
 
 == Changelog ==
 
+= 5.21.0 - 2025-11-10 =
+* Fixed: Fix username and password setting key mismatches
+
 = 5.18.0 - 2025-11-07 =
 * Fixed: Fix awk error when updating changelog with multiline content
 * Fixed: Fix API endpoint setting key mismatch
