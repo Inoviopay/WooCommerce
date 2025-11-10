@@ -49,7 +49,6 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
         $this->debug = $this->get_option( 'debug' );
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
-        $this->routing_number_validate = $this->get_option( "routing_number_validate" );
         add_action( 'wp_enqueue_scripts', array( $this, 'inovio_ach_payment_script' ) );
 
         // Register settings save hook
@@ -69,8 +68,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
         $achInovioPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
         wp_localize_script( 'ach-inovio-gateway-js', 'achInovioPlugindir', $achInovioPlugindir );
         wp_localize_script( 'ach-inovio-gateway-js', 'ach_ajax_scripts', array (
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'ach_validate_routing_url' => $this->routing_number_validate
+            'ajax_url' => admin_url( 'admin-ajax.php' )
          ) );
     }
 

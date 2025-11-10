@@ -117,17 +117,7 @@ class inovio_payment_shortcodes {
             ),
         );
 
-        $form = $form_type == "inoviodirect" ? $form + $this->inovio_advance_form() : $form + array (
-            'routing_number_validate' => array (
-                'title' => __( 'Routing number validate URL' ),
-                'type' => 'text',
-                'description' => __( 'Routing number validate URL.' ),
-                'default' => 'https://www.routingnumbers.info/api/data.json?rn=',
-                'custom_attributes' => array (
-                    'required' => __( 'required' ),
-                ),
-            ),
-        );
+        $form = $form_type == "inoviodirect" ? $form + $this->inovio_advance_form() : $form;
 
         return $form;
     }

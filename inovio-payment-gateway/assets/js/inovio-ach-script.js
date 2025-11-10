@@ -11,7 +11,6 @@ jQuery(document).ready(function () {
 
     jQuery(document).on('keypress', '#ach_inovio_routing_number', enter_numberic_with_hyphen);
     jQuery(document).on('cut copy paste', "#ach_inovio_routing_number", restrict_cut_copy_paste);
-    jQuery(document).on('keyup', '#ach_inovio_routing_number', check_valid_routing_number);
 
     jQuery(document).on('keypress', '#ach_inovio_account_number', ach_enter_numeric);
     jQuery(document).on('cut copy paste', '#ach_inovio_account_number', restrict_cut_copy_paste);
@@ -39,50 +38,12 @@ jQuery(document).ready(function () {
     });
 });
 let check_status = false;
-let routing_no_status = false;
-
-
-let check_valid_routing_number = function () {
-
-    let routing_number = jQuery('#ach_inovio_routing_number').val();
-
-    let validate_routing_url = ach_ajax_scripts.ach_validate_routing_url;
-
-
-    if ((validate_routing_url = !null && validate_routing_url != undefined) || routing_number != null && routing_number != undefined) {
-        jQuery.ajax({
-            type: "GET",
-            url: ach_ajax_scripts.ach_validate_routing_url + routing_number,
-            success: function (data) {
-                if (data.message == "OK") {
-                    routing_no_status = true;
-                    jQuery("#ach_routing_number_message").html(
-                        `<span class="dashicons dashicons-yes"></span>${data.customer_name}`).css("color", "green");
-                } else {
-                    routing_no_status = false;
-                    jQuery("#ach_routing_number_message").html("<span class='dashicons dashicons-no-alt'></span>please enter valid routing number").css("color", "#a00");
-                }
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                routing_no_status = false;
-                jQuery("#ach_routing_number_message").html("<span class='dashicons dashicons-no-alt'></span>please enter valid routing number").css("color", "#a00");
-
-            }
-
-        });
-    } else {
-        routing_no_status = false;
-        jQuery("#ach_routing_number_message").html("<span class='dashicons dashicons-no-alt'></span>please enter valid routing number").css("color", "#a00");
-    }
-}
 
 let inovio_place_order = function (e) {
 
     if (jQuery("#payment_method_achinoviomethod").is(":checked")) {
-        check_valid_routing_number();
         match_account_number();
-        if (check_status === true && routing_no_status == true) {
+        if (check_status === true) {
             return true;
         } else {
             return false;
