@@ -3,7 +3,7 @@
  * Plugin Name: Inovio Payment Gateway WooCommerce Plugin
  * Description: Inovio payment gateway provide payment solutions.
  * Author: Inovio Payments
- * Version: 5.18.0
+ * Version: 5.21.0
  * Author URI: https://inoviopay.com/
  * Plugin URI: https://www.inoviopay.com
  * License: GPLv2
